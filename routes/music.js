@@ -5,18 +5,18 @@ const musicController = require('../controllers/musicController')
 const router = express.Router()
 
 // POST
-router.post('/', musicController.createMusic);
+router.post('/add', musicController.createMusic);
 
 // GET /musics/
-router.get('/', musicController.getMusic)
+router.get('/get', musicController.getMusics)
 
 // GET musics/:musicId
-router.get('/:musicId', musicController.getMusic)
+router.get('/get/:musicId', musicController.getMusic)
 
 // PUT musics/:musicId
-router.put('/:musicId', musicController.updateMusic);
+router.put('/put/:musicId', musicController.updateMusic);
 
 // DELETE /musics/:musicId
-router.delete('/:musicId', musicController.removeMusic);
+router.delete('/delete/:musicId', musicController.removeMusic);
 
 module.exports = router

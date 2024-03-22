@@ -4,7 +4,7 @@ const ArtistDal = require('../dal/artist')
 const MusicDal = require('../dal/music')
 
 // POST music --- /musics/
-exports.createMusic = async (req, res, next) => {
+exports.createMusic = async (req, res) => {
     try {
         let body = req.body;
 
@@ -34,9 +34,8 @@ exports.createMusic = async (req, res, next) => {
 
 
 // GET Musics --- musics/
-exports.getMusics = async (req, res, next) => {
+exports.getMusics = async (req, res) => {
     try {
-        console.log("sdsafsfsd")
         const musics = await MusicDal.getCollection({});
         if (!musics || musics.length === 0) {
             res.status(404).json({ message: "No Music Found" });
@@ -54,45 +53,47 @@ exports.getMusics = async (req, res, next) => {
 
 
 // GET a Specific Music --- /musics/:musicId
-exports.getMusic = (req, res, next) => {
-    var musicId = req.params.musicId;
-
-    MusicDal.get({ _id: musicId }, (err, music) => {
-        if (err) {
-            res.status(500);
-            res.json({
-                status: 500,
-                type: 'GET_MUSIC_ERROR',
-                message: err.message
-            });
-            return;
+exports.getMusic = (req, res) => {
+    try {
+        const musicId = req.params.musicId
+        const music = MusicDal.get({ id: musicId })
+        if (!music) {
+            res.status(400).json({ message: "There is no music with this ID" })
+            return
         }
-        res.status(404);
-        res.json(music || { message: "There is no music with this ID" });
-    });
+        res.json(music);
+    } catch (err) {
+        res.status(500).json({
+            status: 500,
+            type: 'GET_MUSIC_ID_ERROR',
+            message: err.message
+        })
+    }
 };
 
 // PUT or Update a specific Music --- /musics/:musicId
-exports.updateMusic = (req, res, next) => {
+exports.updateMusic = async (req, res) => {
+    try {
+        const musicId = req.params.musicId;
+        const body = req.body;
 
-    var musicId = req.params.musicId;
-    var body = req.body;
-
-    MusicDal.update({ _id: musicId }, body, (err, music) => {
-
-        if (err) {
-            res.status(500);
-            res.json({
+        const music = await MusicDal.update(musicId, body)
+        if (!music) {
+            res.status(500).json({
                 status: 500,
                 type: 'UPDATE_MUSIC_ERROR',
                 message: err.message
-            });
+            })
             return;
         }
-
-        res.status(404);
-        res.json(music || { message: "Can not Update Music" });
-    });
+        res.json(music)
+    } catch (err) {
+        res.status(500).json({
+            status: 500,
+            type: 'PUT_MUSIC_ID_ERROR',
+            message: err.message
+        })
+    }
 };
 
 // DELETE or Remove a specific Music --- musics/:musicId

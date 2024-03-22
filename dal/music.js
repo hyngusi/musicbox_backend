@@ -1,8 +1,24 @@
-const Music = require('../models/music')
+const artist = require('../models/artist');
+const Music = require('../models/music');
 
 // Create music
-exports.create = (data, cb) => {
-    return Music.create(data, cb);
+exports.create = async (data) => {
+    try {
+        const music = await Music.create(data);
+        return music;
+    } catch (err) {
+        throw err;
+    }
+}
+
+// Get Music Collections
+exports.getCollection = async (query) => {
+    try {
+        const musicCollection = await Music.find(query).exec();
+        return musicCollection
+    } catch (err) {
+        throw err;
+    }
 };
 
 // Get music
@@ -27,7 +43,17 @@ exports.get = async (query) => {
 // Update a Music
 exports.update = async (id, data) => {
     try {
-        const updatedMusic = await Music.findByIdAndUpdate(id, data, { new: true }).exec();
+        console.log(data[0]['id'])
+        const updatedMusic = await Music.findOneAndUpdate(
+            { id: id },
+            { title: data[0].title, link: data[0].link, artist: data[0].artist, album: data[0].album },
+            { new: true } // Tùy chọn để trả về tài liệu sau khi cập nhật 
+            //và loại bỏ các trường không xác định
+        )
+        if (!updatedMusic) {
+            throw new Error("Update: Music not found")
+        }
+        return updatedMusic
     } catch (err) {
         throw err;
     }
@@ -36,20 +62,10 @@ exports.update = async (id, data) => {
 // Delete a Music
 exports.remove = async (id) => {
     try {
-        const deletedMusic = await Music.findByIdAndRemove(id).exec();
+        const deletedMusic = await Music.findByIdAndDelete(id).exec();
         return true
     } catch (err) {
         throw err;
     }
 };
 
-// Get Music Collections
-exports.getCollection = async (query) => {
-    try {
-        console.log('run get coolection')
-        const musicCollection = await Music.find(query).exec();
-        return musicCollection
-    } catch (err) {
-        throw err;
-    }
-};
