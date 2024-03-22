@@ -78,6 +78,7 @@ exports.updateMusic = async (req, res) => {
         const body = req.body;
 
         const music = await MusicDal.update(musicId, body)
+        console.log(music)
         if (!music) {
             res.status(500).json({
                 status: 500,
@@ -97,25 +98,23 @@ exports.updateMusic = async (req, res) => {
 };
 
 // DELETE or Remove a specific Music --- musics/:musicId
-exports.removeMusic = (req, res, next) => {
-    var musicId = req.params.musicId;
+exports.removeMusic = async (req, res) => {
+    const musicId = req.params.musicId;
 
     // Option 2: Remove the artist and albums Music associated with this ID
-
-    MusicDal.remove({ _id: musicId }, (err, music) => {
-
-        if (err) {
-            res.status(500);
-            res.json({
-                status: 500,
-                type: 'REMOVE_MUSIC_ERROR',
-                message: err.message
-            });
-            return;
+    try {
+        const music = await MusicDal.remove(musicId)
+        if (!music) {
+            res.status(400).json({ message: "There is no music with this ID" })
+            return
         }
-
-        res.status(404);
-        res.json(music || { message: "Can not Remove Music" });
-    });
-
+        res.json(music);
+    }
+    catch (err) {
+        res.status(500).json({
+            status: 500,
+            type: 'DELETE_MUSIC_ID_ERROR',
+            message: err.message
+        })
+    }
 };

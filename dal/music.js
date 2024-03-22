@@ -43,12 +43,11 @@ exports.get = async (query) => {
 // Update a Music
 exports.update = async (id, data) => {
     try {
-        console.log(data[0]['id'])
+        // console.log(data[0]['id'])
         const updatedMusic = await Music.findOneAndUpdate(
             { id: id },
-            { title: data[0].title, link: data[0].link, artist: data[0].artist, album: data[0].album },
+            { title: data[0].title, link: data[0].link },
             { new: true } // Tùy chọn để trả về tài liệu sau khi cập nhật 
-            //và loại bỏ các trường không xác định
         )
         if (!updatedMusic) {
             throw new Error("Update: Music not found")
@@ -62,10 +61,13 @@ exports.update = async (id, data) => {
 // Delete a Music
 exports.remove = async (id) => {
     try {
-        const deletedMusic = await Music.findByIdAndDelete(id).exec();
-        return true
+        const deletedMusic = await Music.findOneAndDelete({ id: id }).exec();
+        if (!deletedMusic) {
+            throw new Error("Delete: Music not found")
+        }
+        return deletedMusic
     } catch (err) {
-        throw err;
+        return err
     }
 };
 
